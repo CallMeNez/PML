@@ -1,21 +1,30 @@
 package model;
 
+import java.sql.Date;
 import java.time.LocalDate;
 
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import views.NewCalendarView;
 
 public class DayBox extends AnchorPane
 {
 	private Day day;
 	private int no;
+	private Date workingDate;
 	
+	public DayBox()
+	{
+		day = new Day();
+		workingDate = java.sql.Date.valueOf(day.getDate());
+	}
 	public DayBox(LocalDate date, Node...children)
 	{
 		super(children);
 		day = new Day(date);
+		workingDate = java.sql.Date.valueOf(date);
 	}
 	
 	//Event Handlers
@@ -45,19 +54,18 @@ public class DayBox extends AnchorPane
 	}
 	
 	//date
-	public void setDate(LocalDate date)
+	public void setDate(Date date)
 	{
-		day.setDate(date);
-		no = date.getDayOfMonth();
+		workingDate = date;
 	}
 	
-	public LocalDate getDate()
+	public Date getDate()
 	{
-		return day.getDate();
+		return workingDate;
 	}
+	
 	public int getNo()
 	{
 		return no;
 	}
-	
 }

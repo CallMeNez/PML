@@ -7,7 +7,9 @@ import model.Day;
 import views.HomeView;
 import views.NewCalendarView;
 import views.RootPane;
-import views.TimetableView;
+import views.NewTimetableView;
+import views.TasksView;
+
 import java.sql.*;
 
 import java.time.LocalDate;
@@ -19,8 +21,8 @@ import controllers.RootController;
 
 public class AppLoader extends Application
 {
-	private static RootPane rp;
-	private Connection conn;
+	private static RootController rc;
+	private static Connection conn;
 	
 	private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";  
 	private static final String DB_URL = "jdbc:mysql://localhost/";
@@ -29,7 +31,7 @@ public class AppLoader extends Application
 	private static final String PASS = "";
 	/**
 	 * (in a try-catch)
-	 * initialises rp with a new RootPane, with parameters being new a
+	 * initialises rc with a new RootController, with parameters being new a
 	 * HomeView, NewCalendarView(YearMonth.now), and TimetableView(WIP).
 	 * A new RootController is then assigned rp.
 	 */
@@ -48,13 +50,13 @@ public class AppLoader extends Application
 		}
 		try
 		{
-			rp = new RootPane
+			rc = new RootController(new RootPane
 				(
 					new HomeView(), 
 					new NewCalendarView(YearMonth.now()),
-					new TimetableView(conn)
-				);
-			new RootController(rp);
+					new NewTimetableView(),
+					new TasksView()
+				), conn);
 		}
 		catch(RuntimeException e) 
 		{
@@ -72,13 +74,18 @@ public class AppLoader extends Application
 		stage.setMinWidth(800);
 		stage.setMinHeight(600);
 		stage.setTitle("Plan My Life");
-		stage.setScene(new Scene(rp));
+		stage.setScene(new Scene(rc.getRootPane()));
 		stage.show();
 	}
 	public static void main(String[] args)
 	{
 		launch(args);
-		rp.getTimetableView().closeJDBC();
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		rc.closeDB();
 		System.out.println("Database closing ...");
 	}
 }

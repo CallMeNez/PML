@@ -1,5 +1,6 @@
 package views;
 
+import java.sql.Date;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -7,8 +8,13 @@ import java.util.ArrayList;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -29,6 +35,11 @@ public class NewCalendarView extends VBox
 	private Text title;
 	private GridPane calendar;
 	private ArrayList<Text> labels;
+	private ArrayList<DayBox> boxes;
+	private Date workingDate;
+	private int activeBox;
+	private int counter;
+	private DayBox boxClicked;
 	
 /**
  * NewCalendarView builds the HBox at the top that holds the month buttons
@@ -40,7 +51,9 @@ public class NewCalendarView extends VBox
 	public NewCalendarView(YearMonth workMonth) 
 	{
 		this.workMonth = workMonth;
-		
+		this.workingDate = Date.valueOf(workMonth+"-01");
+		buildBoxes();
+	
 		//build title and boxes
 		title = new Text();
 		lastMonth = new Button();
@@ -61,7 +74,7 @@ public class NewCalendarView extends VBox
 		
 		//build Calendar
 		calendar = new GridPane();
-		buildCalendar();
+		buildCalendar(workingDate);
 		this.getChildren().addAll(top, calendar);
 	}
 
@@ -70,9 +83,10 @@ public class NewCalendarView extends VBox
  * and builds DayBoxes for each date to build up the calendar on the GridPane using 2 for loops to decide the coordinates. They're set as invisible if they don't belong to the month shown,
  * but are still attached to the GridPane.
  */
-	public void buildCalendar()
+	public void buildCalendar(Date workingDate)
 	{
-		int x = 0;
+		int x;
+		x= 0;
 		for(Text t : labels)
 		{
 			calendar.add(t, x, 0);
@@ -83,14 +97,22 @@ public class NewCalendarView extends VBox
 		{
 			itdate = itdate.minusDays(1);
 		}
+		counter = 0;
 		for (int i = 1; i<6; i++)
 		{
 			for (int j = 0; j<7; j++)
 			{
-				DayBox db = new DayBox(itdate);
+				boxes.get(counter).setDate(Date.valueOf(itdate));;
 				
-				db.setMinSize(100, 100);
-				db.setBorder
+				boxes.get(counter).setMinSize(100, 100);
+				if(itdate.equals(workingDate.toLocalDate()))
+				{
+					boxes.get(counter).setBackground(new Background(new BackgroundFill(
+							Color.GREEN, 
+							CornerRadii.EMPTY, 
+							Insets.EMPTY)));
+				}
+					boxes.get(counter).setBorder
 							(
 								new Border
 								(
@@ -103,17 +125,17 @@ public class NewCalendarView extends VBox
 									)
 								)
 							);
-				
 				Text no = new Text(Integer.toString(itdate.getDayOfMonth()));
-				db.getChildren().add(no);
-				db.setLeftAnchor(no, 5.0);
-				db.setTopAnchor(no, 5.0);
+				boxes.get(counter).getChildren().add(no);
+				boxes.get(counter).setLeftAnchor(no, 5.0);
+				boxes.get(counter).setTopAnchor(no, 5.0);
 				if (itdate.getMonthValue() != workMonth.getMonthValue())
 				{
-					db.setVisible(false);
+					boxes.get(counter).setVisible(false);
 				}
-				calendar.add(db, j, i);
+				calendar.add(boxes.get(counter), j, i);
 				itdate = itdate.plusDays(1);
+				counter++;
 				
 			}
 		}
@@ -123,6 +145,14 @@ public class NewCalendarView extends VBox
 /**
  * buildTitle sets the Month name at the top, along with the months in the buttons either side of it.
  */
+	public void buildBoxes()
+	{
+		boxes = new ArrayList<DayBox>();
+		for (int i = 0; i<35; i++)
+		{
+			boxes.add(new DayBox());
+		}
+	}
 	public void buildTitle()
 	{
 		title.setText(workMonth.getMonth().toString());
@@ -142,6 +172,7 @@ public class NewCalendarView extends VBox
 	public void nextMonth()
 	{
 		workMonth = workMonth.plusMonths(1);
+
 	}
 /**
  * Clears the calendar GridPane of all children.
@@ -149,6 +180,19 @@ public class NewCalendarView extends VBox
 	public void clearCalendar()
 	{
 		calendar.getChildren().removeAll(calendar.getChildren());
+		boxes.clear();
+	}
+	
+	//sets and gets
+	public void setWorkingDate(Date workingDate)
+	{
+		this.workingDate = workingDate;
+		workMonth = YearMonth.of(workingDate.toLocalDate().getYear(), workingDate.toLocalDate().getMonth());
+	}
+	
+	public Date getWorkingDate()
+	{
+		return workingDate;
 	}
 	//EHs
 /**
@@ -166,5 +210,12 @@ public class NewCalendarView extends VBox
 	public void setNextMonthHandler(EventHandler<ActionEvent> e)
 	{
 		nextMonth.setOnAction(e);
+	}
+	public void setBoxHandlers(EventHandler<MouseEvent> e)
+	{
+		for(int i = 0; i<35; i++)
+		{
+			boxes.get(i).setOnMouseClicked(e);
+		}
 	}
 }

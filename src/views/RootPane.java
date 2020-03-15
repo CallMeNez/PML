@@ -16,12 +16,14 @@ public class RootPane extends BorderPane
 {
 	private HomeView home;
 	private NewCalendarView calendar;
-	private TimetableView timetable;
+	private NewTimetableView timetable;
+	private TasksView tasks;
 	private VBox side;
 	private AnchorPane main;
 	private AnchorPane homeBox;
 	private AnchorPane calBox;
 	private AnchorPane ttBox;
+	private AnchorPane taBox;
 	
 	/**
 	 * WIP, needs additions to it with each module added later.
@@ -34,14 +36,16 @@ public class RootPane extends BorderPane
 	 * @param home
 	 * @param calendar
 	 * @param timetable
+	 * @param tasksView 
 	 */
-	public RootPane(HomeView home, NewCalendarView calendar, TimetableView timetable)
+	public RootPane(HomeView home, NewCalendarView calendar, NewTimetableView timetable, TasksView tasks)
 	{
 		//build side
 		side = new VBox();
 		homeBox = new AnchorPane();
 		calBox = new AnchorPane();
 		ttBox = new AnchorPane();
+		taBox = new AnchorPane();
 		
 		Text homeName = new Text("Home");
 		homeName.setTextAlignment(TextAlignment.CENTER);
@@ -70,7 +74,17 @@ public class RootPane extends BorderPane
 		ttBox.setBottomAnchor(ttName, 5.0);
 		ttBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 		
-		side.getChildren().addAll(homeBox, calBox, ttBox);
+		Text taName = new Text("Tasks");
+		taName.setTextAlignment(TextAlignment.CENTER);
+		taBox.getChildren().add(taName);
+		taBox.setTopAnchor(taName, 5.0);
+		taBox.setLeftAnchor(taName, 5.0);
+		taBox.setRightAnchor(taName, 5.0);
+		taBox.setBottomAnchor(taName, 5.0);
+		taBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+		
+		
+		side.getChildren().addAll(homeBox, calBox, ttBox, taBox);
 		this.setLeft(side);
 		
 		//main
@@ -81,6 +95,7 @@ public class RootPane extends BorderPane
 		this.home = home;
 		this.calendar = calendar;
 		this.timetable = timetable;
+		this.tasks = tasks;
 		
 		setMainHome();
 	}
@@ -104,11 +119,17 @@ public class RootPane extends BorderPane
 	 * returns TimetableView
 	 * @return timetable
 	 */
-	public TimetableView getTimetableView()
+	public NewTimetableView getTimetableView()
 	{
 		return timetable;
 	}
-	
+	/**
+	 * returns TasksView
+	 * @return tasks
+	 */
+	public TasksView getTasksView() {
+		return tasks;
+	}
 	/**
 	 * sets the main pane to the HomeView
 	 */
@@ -148,7 +169,18 @@ public class RootPane extends BorderPane
 		main.setRightAnchor(timetable, 5.0);
 		main.setBottomAnchor(timetable, 5.0);
 	}
-	
+	/**
+	 * sets the main pane to the TasksView
+	 */
+	public void setMainTasks()
+	{
+		main.getChildren().clear();
+		main.getChildren().add(tasks);
+		main.setTopAnchor(tasks, 5.0);
+		main.setLeftAnchor(tasks, 5.0);
+		main.setRightAnchor(tasks, 5.0);
+		main.setBottomAnchor(tasks, 5.0);
+	}
 	/**
 	 * adds a MouseEvent to the Home tile
 	 * @param e
@@ -172,5 +204,9 @@ public class RootPane extends BorderPane
 	public void setTimetableHandler(EventHandler<MouseEvent> e)
 	{
 		ttBox.setOnMouseClicked(e);
+	}
+	public void setTasksHandler(EventHandler<MouseEvent> e)
+	{
+		taBox.setOnMouseClicked(e);
 	}
 }
